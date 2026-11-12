@@ -20,16 +20,28 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:rgba(0,0,0,0);
   -webkit-text-size-adjust:100%;touch-action:none;}
 
-#stage{position:fixed;left:0;top:0;right:0;bottom:0;overflow:hidden;}
+/* 縦向きの画面（縦ロックのスマホなど）では、#app ごと90度まわして横向きで見せる */
+#app{position:fixed;left:0;top:0;width:100%;height:100%;overflow:hidden;-webkit-transform-origin:0 0;transform-origin:0 0;}
+#stage{position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;}
 #pic{position:absolute;display:block;-webkit-user-drag:none;}
 #pops,#fx{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;}
 
 /* おした物がふわっと1.1倍に */
 .sprite{position:absolute;-webkit-transform-origin:50% 50%;transform-origin:50% 50%;
   -webkit-transition:-webkit-transform .18s cubic-bezier(.3,1.7,.5,1);transition:transform .18s cubic-bezier(.3,1.7,.5,1);
-  -webkit-filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 5px 8px rgba(0,0,0,.25));
-  filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 5px 8px rgba(0,0,0,.25));}
+}
 .sprite.on{-webkit-transform:scale(1.1);transform:scale(1.1);}
+
+/* 鳴っているあいだ、物のまわりにキラキラ（細長い光を十字に重ねた星） */
+.spk{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;pointer-events:none;
+  -webkit-animation:spk .85s ease-out forwards;animation:spk .85s ease-out forwards;}
+.spk:before,.spk:after{content:'';position:absolute;left:50%;top:0;width:22%;height:100%;margin-left:-11%;border-radius:50%;
+  background:#fff;box-shadow:0 0 6px 1px rgba(255,232,120,.95);}
+.spk:after{-webkit-transform:rotate(90deg);transform:rotate(90deg);}
+.spk.y:before,.spk.y:after{background:#fff6b0;}
+.spk.p:before,.spk.p:after{background:#ffe3f1;box-shadow:0 0 6px 1px rgba(255,170,210,.9);}
+@-webkit-keyframes spk{0%{-webkit-transform:scale(0) rotate(0);opacity:1}35%{-webkit-transform:scale(1) rotate(30deg);opacity:1}100%{-webkit-transform:scale(.15) rotate(90deg);opacity:0}}
+@keyframes spk{0%{transform:scale(0) rotate(0);opacity:1}35%{transform:scale(1) rotate(30deg);opacity:1}100%{transform:scale(.15) rotate(90deg);opacity:0}}
 
 /* ふきだし */
 .bubble{position:absolute;max-width:80%;background:#fff;border:3px solid #4a2c12;border-radius:18px;padding:6px 14px;
@@ -52,7 +64,7 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 @-webkit-keyframes fly{0%{-webkit-transform:translate(0,0) scale(.5);opacity:1}100%{-webkit-transform:translate(0,-90px) scale(1.3);opacity:0}}
 @keyframes fly{0%{transform:translate(0,0) scale(.5);opacity:1}100%{transform:translate(0,-90px) scale(1.3);opacity:0}}
 
-#pills{position:fixed;right:10px;top:8px;z-index:5;white-space:nowrap;}
+#pills{position:absolute;right:10px;top:8px;z-index:5;white-space:nowrap;}
 .pill{position:relative;display:inline-block;height:34px;line-height:34px;padding:0 12px;border-radius:17px;background:rgba(255,255,255,.88);
   box-shadow:0 2px 0 rgba(74,44,18,.18);font-size:14px;font-weight:bold;overflow:hidden;}
 .pill .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#ffc078;}
@@ -60,9 +72,8 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 .pill span{position:relative;}
 .pill .hint{font-size:10px;font-weight:normal;opacity:.6;margin-left:5px;}
 
-#rotate{position:fixed;left:0;right:0;bottom:12px;text-align:center;font-size:17px;font-weight:bold;display:none;z-index:4;}
 
-#start{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(253,241,216,.94);z-index:10;text-align:center;
+#start{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(253,241,216,.94);z-index:10;text-align:center;
   -webkit-transition:opacity .35s;transition:opacity .35s;}
 #start.gone{opacity:0;}
 #sTitle{position:absolute;left:0;right:0;top:10%;font-size:36px;font-weight:bold;letter-spacing:2px;}
@@ -74,9 +85,17 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 @-webkit-keyframes hop{from{-webkit-transform:translateY(0)}to{-webkit-transform:translateY(-12px)}}
 @keyframes hop{from{transform:translateY(0)}to{transform:translateY(-12px)}}
 #hint{position:absolute;left:24px;right:24px;bottom:4%;font-size:14px;line-height:1.8;opacity:.75;}
+/* 背の低い画面（スマホの横向き）では、はじめる画面を小さめに */
+#app.short #sTitle{top:6%;font-size:26px;}
+#app.short #sSub{margin-top:38px;font-size:15px;}
+#app.short #startBtn{top:56%;width:170px;height:170px;margin:-85px 0 0 -85px;}
+#app.short #startBtn .big{font-size:64px;margin-top:30px;}
+#app.short #startBtn .go{font-size:16px;margin-top:6px;}
+#app.short #hint{display:none;}
 </style>
 </head>
 <body>
+<div id="app">
 <div id="stage">
   <img id="pic" src="machi.jpg" alt="">
   <div id="pops"></div>
@@ -85,12 +104,12 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 <div id="pills">
   <div class="pill" id="vol"><i class="fill"></i><span id="volIcon">🔉</span> <span id="volText">ふつう</span><span class="hint">ながおし</span></div>
 </div>
-<div id="rotate">📱 よこに すると おおきく なるよ</div>
 <div id="start">
   <div id="sTitle">まちの おとさがし</div>
   <div id="sSub">えの なかの ひとや どうぶつ、のりものを おしてみよう！</div>
   <div id="startBtn"><div class="big">👆</div><div class="go">タップして はじめる</div></div>
-  <div id="hint">音が出ないときは、iPadの消音（マナーモード）をオフにして音量を上げてください。iPadは横向きがおすすめです。<br>右上の 🔉 を長押しすると、音の大きさを3段階で変えられます。</div>
+  <div id="hint">音が出ないときは、iPadの消音（マナーモード）をオフにして音量を上げてください。<br>右上の 🔉 を長押しすると、音の大きさを3段階で変えられます。</div>
+</div>
 </div>
 
 <script src="scene.js"></script>
@@ -140,15 +159,25 @@ function hitTest(x, y) {
 /* ---------- 画面の大きさに合わせる ---------- */
 var pic = document.getElementById('pic'), pops = document.getElementById('pops'), fx = document.getElementById('fx');
 var view = { s: 1, ox: 0, oy: 0 };
+var app = document.getElementById('app'), rot = false, VW = 0, VH = 0;   /* VW, VH = 横向きにしたときの幅と高さ */
 function layout() {
-  var W = window.innerWidth, H = window.innerHeight;
+  var sw = window.innerWidth, sh = window.innerHeight;
+  rot = sh > sw;
+  VW = rot ? sh : sw; VH = rot ? sw : sh;
+  app.style.width = VW + 'px'; app.style.height = VH + 'px';
+  /* スマホを左に倒した向き（上が左）で、ちょうど正しく見える */
+  var tf = rot ? 'translate(' + sw + 'px,0) rotate(90deg)' : 'none';
+  app.style.webkitTransform = tf; app.style.transform = tf;
+  app.className = VH < 560 ? 'short' : '';
+  var W = VW, H = VH;
   var s = Math.min(W / IW, H / IH);
   view.s = s; view.ox = Math.round((W - IW * s) / 2); view.oy = Math.round((H - IH * s) / 2);
   pic.style.left = view.ox + 'px'; pic.style.top = view.oy + 'px';
   pic.style.width = Math.round(IW * s) + 'px'; pic.style.height = Math.round(IH * s) + 'px';
-  document.getElementById('rotate').style.display = (H > W * 1.1) ? 'block' : 'none';
   for (var id in sprites) if (sprites.hasOwnProperty(id)) placeSprite(sprites[id]);
 }
+/* 画面の点（指の位置）を、まわしたあとの点に */
+function toView(x, y) { return rot ? [y, window.innerWidth - x] : [x, y]; }
 function toImage(cx, cy) {
   var x = (cx - view.ox) / view.s, y = (cy - view.oy) / view.s;
   /* 絵の外（上下の余白）をおしても、いちばん近い所が鳴る */
@@ -236,7 +265,7 @@ function showBubble(o) {
   fx.appendChild(d);
   var cx = view.ox + (o.bb[0] + o.bb[2]) / 2 * view.s;
   var top = view.oy + o.bb[1] * view.s, bottom = view.oy + o.bb[3] * view.s;
-  var bw = d.offsetWidth, bh = d.offsetHeight, W = window.innerWidth;
+  var bw = d.offsetWidth, bh = d.offsetHeight, W = VW;
   var left = Math.max(6, Math.min(W - bw - 6, cx - bw / 2));
   var up = top - bh - 14 > 4;
   d.className = 'bubble ' + (up ? 'up' : 'down');
@@ -266,6 +295,33 @@ function ripple(cx, cy) {
     fx.appendChild(n); removeLater(n, 1050);
   }
 }
+/* キラキラ：物のふちのあたり（少し外と内）に、ぽつぽつ出す */
+var sparkTimers = {};
+function sparkle(o, n) {
+  if (fx.childNodes.length > 70) return;
+  var b = o.bb, p = o.poly, cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+  for (var k = 0; k < n; k++) {
+    var i = Math.floor(Math.random() * (p.length / 2)) * 2, j = (i + 2) % p.length, u = Math.random();
+    var x = p[i] + (p[j] - p[i]) * u, y = p[i + 1] + (p[j + 1] - p[i + 1]) * u;
+    if (Math.random() < 0.25) { var f = 0.3 + Math.random() * 0.6; x = cx + (x - cx) * f; y = cy + (y - cy) * f; }
+    else {
+      var dx = x - cx, dy = y - cy, L = Math.sqrt(dx * dx + dy * dy) || 1, out = (Math.random() * 16 - 4) / view.s;
+      x += dx / L * out; y += dy / L * out;
+    }
+    x = cx + (x - cx) * 1.1; y = cy + (y - cy) * 1.1;   /* 1.1倍にふくらんだ絵に合わせる */
+    var e = document.createElement('div'), sz = Math.round(12 + Math.random() * 16), r = Math.random();
+    e.className = 'spk' + (r < 0.4 ? ' y' : (r < 0.6 ? ' p' : ''));
+    e.style.left = (view.ox + x * view.s) + 'px'; e.style.top = (view.oy + y * view.s) + 'px';
+    e.style.width = e.style.height = sz + 'px'; e.style.marginLeft = e.style.marginTop = (-sz / 2) + 'px';
+    fx.appendChild(e); removeLater(e, 900);
+  }
+}
+function sparkOn(o) {
+  sparkOff(o);
+  sparkle(o, 7);
+  sparkTimers[o.id] = setInterval(function () { sparkle(o, 2); }, 190);
+}
+function sparkOff(o) { if (sparkTimers[o.id]) { clearInterval(sparkTimers[o.id]); sparkTimers[o.id] = null; } }
 function removeLater(el, ms) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, ms); }
 
 /* ---------- 音 ---------- */
@@ -396,10 +452,10 @@ function killGroup(g, fade) {
   for (var i = 0; i < g.srcs.length; i++) { try { g.srcs[i].stop(now + fade + 0.02); } catch (e2) {} }
   setTimeout(function () { try { g.out.disconnect(); } catch (e3) {} }, (fade + 0.2) * 1000);
 }
-function finishVisual(t) { if (t.isObj) { popOff(t); hideBubble(t); } }
+function finishVisual(t) { if (t.isObj) { popOff(t); hideBubble(t); sparkOff(t); } }
 
 function trigger(t, cx, cy) {
-  if (t.isObj) { popOn(t); if (t.text) showBubble(t); }
+  if (t.isObj) { popOn(t); sparkOn(t); if (t.text) showBubble(t); }
   else ripple(cx, cy);
   if (!ctx) { setTimeout(function () { finishVisual(t); }, 900); return; }
   resume();
@@ -447,7 +503,7 @@ function holdPress(el) {
     holdTimer = null; holdRelease();
     volIdx = (volIdx + 1) % VOLS.length; showVol();
     try { localStorage.setItem('machi-oto-vol', String(volIdx)); } catch (e) {}
-    var z = ZON[0]; if (ctx) trigger(z, window.innerWidth - 60, 60);
+    var z = ZON[0]; if (ctx) trigger(z, VW - 60, 60);
   }, 900);
 }
 function holdRelease() {
@@ -457,10 +513,19 @@ function holdRelease() {
 showVol();
 
 /* ---------- はじめる ---------- */
+/* iPad の Safari では、はじめるときに全画面（タブやアドレスバーを消す）。
+   iPhone の Safari は全画面にできないので、ホーム画面に追加して使う */
+function goFull() {
+  if (window.navigator.standalone) return;
+  var d = document.documentElement, f = d.requestFullscreen || d.webkitRequestFullscreen;
+  if (!f || document.fullscreenElement || document.webkitFullscreenElement) return;
+  try { var r = f.call(d); if (r && r['catch']) r['catch'](function () {}); } catch (e) {}
+}
 var started = false;
 function start() {
   if (started) return;
   started = true;
+  goFull();
   var st = $('start'); st.className = 'gone';
   setTimeout(function () { st.style.display = 'none'; }, 400);
 }
@@ -474,7 +539,8 @@ try {
 } catch (e) {}
 var NP = passiveOK ? { passive: false } : false, lastTouch = 0;
 function isPill(n) { while (n && n !== document) { if (n.id === 'vol') return n; n = n.parentNode; } return null; }
-function press(cx, cy) {
+function press(sx, sy) {
+  var v = toView(sx, sy), cx = v[0], cy = v[1];
   var ip = toImage(cx, cy), t = hitTest(ip[0], ip[1]);
   if (t) trigger(t, cx, cy);
 }
