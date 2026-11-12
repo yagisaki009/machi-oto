@@ -27,8 +27,8 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 /* おした物がふわっと1.1倍に */
 .sprite{position:absolute;-webkit-transform-origin:50% 50%;transform-origin:50% 50%;
   -webkit-transition:-webkit-transform .18s cubic-bezier(.3,1.7,.5,1);transition:transform .18s cubic-bezier(.3,1.7,.5,1);
-  -webkit-filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 6px 6px rgba(0,0,0,.45));
-  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 6px 6px rgba(0,0,0,.45));}
+  -webkit-filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 5px 8px rgba(0,0,0,.25));
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.7)) drop-shadow(0 5px 8px rgba(0,0,0,.25));}
 .sprite.on{-webkit-transform:scale(1.1);transform:scale(1.1);}
 
 /* ふきだし */
@@ -157,17 +157,43 @@ function toImage(cx, cy) {
 
 /* ---------- 1.1倍にふくらむ絵（その物の形で切りぬく） ---------- */
 var sprites = {};
+/* ふちをやわらかく：形を少しふくらませて角を丸め、外側へ向かってぼかす（絵の点の数で） */
+var GROW = 4, SOFT = 9;
+function polyPath(g, p, dx, dy) {
+  g.beginPath(); g.moveTo(p[0] + dx, p[1] + dy);
+  for (var i = 2; i < p.length; i += 2) g.lineTo(p[i] + dx, p[i + 1] + dy);
+  g.closePath();
+}
+function softMask(p, x0, y0, w, h) {
+  var s = document.createElement('canvas'); s.width = w; s.height = h;
+  var sg = s.getContext('2d');
+  sg.fillStyle = sg.strokeStyle = '#000'; sg.lineJoin = 'round'; sg.lineWidth = GROW * 2;
+  polyPath(sg, p, -x0, -y0); sg.fill(); sg.stroke();
+  /* 形は画面の外にかいて、ぼかした影だけを元の場所に落とす（古いSafariでも使えるぼかし方） */
+  var m = document.createElement('canvas'); m.width = w; m.height = h;
+  var mg = m.getContext('2d'), far = w + 40;
+  mg.shadowColor = '#000'; mg.shadowBlur = SOFT; mg.shadowOffsetX = far; mg.shadowOffsetY = 0;
+  mg.drawImage(s, -far, 0);
+  /* 影が出ない古い端末では、ぼかさずに丸めた形だけ使う（まん中の段に、ちゃんと形があるかで判断） */
+  var ok = false;
+  try {
+    var d = mg.getImageData(0, h >> 1, w, 1).data;
+    for (var k = 3; k < d.length; k += 4) if (d[k] > 100) { ok = true; break; }
+  } catch (e) { ok = true; }
+  return ok ? m : s;
+}
 function makeSprite(o) {
   if (sprites[o.id]) return sprites[o.id];
-  var b = o.bb, x0 = Math.max(0, Math.floor(b[0]) - 1), y0 = Math.max(0, Math.floor(b[1]) - 1);
-  var w = Math.min(IW, Math.ceil(b[2]) + 1) - x0, h = Math.min(IH, Math.ceil(b[3]) + 1) - y0;
+  var b = o.bb, pad = GROW + SOFT;
+  var x0 = Math.max(0, Math.floor(b[0]) - pad), y0 = Math.max(0, Math.floor(b[1]) - pad);
+  var w = Math.min(IW, Math.ceil(b[2]) + pad) - x0, h = Math.min(IH, Math.ceil(b[3]) + pad) - y0;
   var c = document.createElement('canvas');
   c.width = w; c.height = h;
-  var g = c.getContext('2d'), p = o.poly;
-  g.beginPath(); g.moveTo(p[0] - x0, p[1] - y0);
-  for (var i = 2; i < p.length; i += 2) g.lineTo(p[i] - x0, p[i + 1] - y0);
-  g.closePath(); g.clip();
+  var g = c.getContext('2d');
   g.drawImage(pic, -x0, -y0);
+  g.globalCompositeOperation = 'destination-in';
+  g.drawImage(softMask(o.poly, x0, y0, w, h), 0, 0);
+  g.globalCompositeOperation = 'source-over';
   c.className = 'sprite';
   var sp = { el: c, x0: x0, y0: y0, w: w, h: h, timer: null };
   sprites[o.id] = sp;

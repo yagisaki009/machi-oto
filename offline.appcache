@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# まちの おとさがし v2（iOS 11.2以前のiPad用）
+# まちの おとさがし v3（iOS 11.2以前のiPad用）
 index.html
 scene.js
 machi.jpg
@@ -82,6 +82,7 @@ sounds/s_f44f50fb.m4a
 sounds/s_fa745865.m4a
 sounds/s_faff500c.m4a
 sounds/v_aquakid.m4a
+sounds/v_aquamama.m4a
 sounds/v_bluekids.m4a
 sounds/v_boat.m4a
 sounds/v_bus.m4a
@@ -96,6 +97,7 @@ sounds/v_hashinoko.m4a
 sounds/v_hatkids.m4a
 sounds/v_hiker.m4a
 sounds/v_kakariin.m4a
+sounds/v_kimono.m4a
 sounds/v_kirin.m4a
 sounds/v_koala.m4a
 sounds/v_koujinohito.m4a
