@@ -32,14 +32,16 @@ body{font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Hiragino Kaku Goth
 }
 .sprite.on{-webkit-transform:scale(1.1);transform:scale(1.1);}
 
-/* 鳴っているあいだ、物のまわりにキラキラ（細長い光を十字に重ねた星。黄色だけ・光はひかえめ） */
+/* 鳴っているあいだ、物のまわりにキラキラ（細長い光を十字に重ねた星） */
 .spk{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;pointer-events:none;
-  -webkit-animation:spk .8s ease-out forwards;animation:spk .8s ease-out forwards;}
+  -webkit-animation:spk .85s ease-out forwards;animation:spk .85s ease-out forwards;}
 .spk:before,.spk:after{content:'';position:absolute;left:50%;top:0;width:22%;height:100%;margin-left:-11%;border-radius:50%;
-  background:#ffe066;box-shadow:0 0 4px rgba(255,196,0,.55);}
+  background:#fff;box-shadow:0 0 6px 1px rgba(255,232,120,.95);}
 .spk:after{-webkit-transform:rotate(90deg);transform:rotate(90deg);}
-@-webkit-keyframes spk{0%{-webkit-transform:scale(0) rotate(0);opacity:.95}35%{-webkit-transform:scale(1) rotate(20deg);opacity:.95}100%{-webkit-transform:scale(.2) rotate(50deg);opacity:0}}
-@keyframes spk{0%{transform:scale(0) rotate(0);opacity:.95}35%{transform:scale(1) rotate(20deg);opacity:.95}100%{transform:scale(.2) rotate(50deg);opacity:0}}
+.spk.y:before,.spk.y:after{background:#fff6b0;}
+.spk.p:before,.spk.p:after{background:#ffe3f1;box-shadow:0 0 6px 1px rgba(255,170,210,.9);}
+@-webkit-keyframes spk{0%{-webkit-transform:scale(0) rotate(0);opacity:1}35%{-webkit-transform:scale(1) rotate(30deg);opacity:1}100%{-webkit-transform:scale(.15) rotate(90deg);opacity:0}}
+@keyframes spk{0%{transform:scale(0) rotate(0);opacity:1}35%{transform:scale(1) rotate(30deg);opacity:1}100%{transform:scale(.15) rotate(90deg);opacity:0}}
 
 /* ふきだし */
 .bubble{position:absolute;max-width:80%;background:#fff;border:3px solid #4a2c12;border-radius:18px;padding:6px 14px;
@@ -296,7 +298,7 @@ function ripple(cx, cy) {
 /* キラキラ：物のふちのあたり（少し外と内）に、ぽつぽつ出す */
 var sparkTimers = {};
 function sparkle(o, n) {
-  if (fx.childNodes.length > 50) return;
+  if (fx.childNodes.length > 70) return;
   var b = o.bb, p = o.poly, cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
   for (var k = 0; k < n; k++) {
     var i = Math.floor(Math.random() * (p.length / 2)) * 2, j = (i + 2) % p.length, u = Math.random();
@@ -307,17 +309,17 @@ function sparkle(o, n) {
       x += dx / L * out; y += dy / L * out;
     }
     x = cx + (x - cx) * 1.1; y = cy + (y - cy) * 1.1;   /* 1.1倍にふくらんだ絵に合わせる */
-    var e = document.createElement('div'), sz = Math.round(10 + Math.random() * 12);
-    e.className = 'spk';
+    var e = document.createElement('div'), sz = Math.round(12 + Math.random() * 16), r = Math.random();
+    e.className = 'spk' + (r < 0.4 ? ' y' : (r < 0.6 ? ' p' : ''));
     e.style.left = (view.ox + x * view.s) + 'px'; e.style.top = (view.oy + y * view.s) + 'px';
     e.style.width = e.style.height = sz + 'px'; e.style.marginLeft = e.style.marginTop = (-sz / 2) + 'px';
-    fx.appendChild(e); removeLater(e, 850);
+    fx.appendChild(e); removeLater(e, 900);
   }
 }
 function sparkOn(o) {
   sparkOff(o);
-  sparkle(o, 4);
-  sparkTimers[o.id] = setInterval(function () { sparkle(o, 1); }, 220);
+  sparkle(o, 7);
+  sparkTimers[o.id] = setInterval(function () { sparkle(o, 2); }, 190);
 }
 function sparkOff(o) { if (sparkTimers[o.id]) { clearInterval(sparkTimers[o.id]); sparkTimers[o.id] = null; } }
 function removeLater(el, ms) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, ms); }
